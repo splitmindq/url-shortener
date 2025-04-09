@@ -7,6 +7,7 @@ import (
 	"os"
 	"url-shortener/internal/config"
 	"url-shortener/internal/http-server/middleware/logger"
+	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/lib/logger/sl"
 	"url-shortener/internal/storage/sqlite"
 )
@@ -45,18 +46,24 @@ func setupLogger(env string) *slog.Logger {
 	switch env {
 
 	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		log = setupPrettySlog(slog.LevelDebug)
 	case envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		log = setupPrettySlog(slog.LevelDebug)
 	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
+		log = setupPrettySlog(slog.LevelInfo)
 	}
 
 	return log
+}
+
+func setupPrettySlog(s slog.Level) *slog.Logger {
+	opts := slogpretty.PrettyHandlerOptions{
+		SlogOpts: &slog.HandlerOptions{
+			Level: s,
+		},
+	}
+
+	handler := opts.NewPrettyHandler(os.Stdout)
+
+	return slog.New(handler)
 }
