@@ -66,7 +66,7 @@ func (s *Storage) SaveUrl(urlToSave string, alias string) (int64, error) {
 
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) && errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
-			return 0, fmt.Errorf("%s: дублирование уникального ключа: %w", op, storage.ErrUrlAlreadyExists)
+			return 0, fmt.Errorf("%s: дублирование уникального ключа: %w", op, storage.ErrURLAlreadyExists)
 		}
 		return 0, fmt.Errorf("не удалось выполнить оператор: %w", err)
 	}
@@ -99,18 +99,18 @@ func (s *Storage) GetURL(alies string) (string, error) {
 	err = stmt.QueryRow(alies).Scan(&url)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", fmt.Errorf("%s: %w", op, storage.ErrUrlNotFound)
+			return "", fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
 		}
 		return "", fmt.Errorf("не удалось выполнить оператор: %w", err)
 	}
 	return url, nil
 }
 
-func (s *Storage) DeleteUrl(alies string) error {
+func (s *Storage) DeleteUrl(alias string) error {
 
 	const op = "storage.sqlite.DeleteUrl"
 
-	stmt, err := s.db.Prepare("DELETE FROM urls WHERE alies = ?;")
+	stmt, err := s.db.Prepare("DELETE FROM urls WHERE alias = ?;")
 
 	if err != nil {
 		return fmt.Errorf("не удалось подготовить оператор: %w", err)
@@ -122,10 +122,10 @@ func (s *Storage) DeleteUrl(alies string) error {
 		}
 	}(stmt)
 
-	_, err = stmt.Exec(alies)
+	_, err = stmt.Exec(alias)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("%s: %w", op, storage.ErrUrlNotFound)
+			return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
 		}
 		return fmt.Errorf("не удалось выполнить оператор: %w", err)
 	}
