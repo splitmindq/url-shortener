@@ -43,7 +43,7 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 		err := render.DecodeJSON(r.Body, &req)
 		if err != nil {
-			log.Error("failed to decode request", sl.ErisErr(err))
+			log.Error("failed to decode request", sl.Err(err))
 
 			render.JSON(w, r, resp.Error("failed to decode request"))
 
@@ -58,7 +58,7 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 			var validateErr validator.ValidationErrors
 			errors.As(err, &validateErr)
 
-			log.Error("Invalid request", sl.ErisErr(err))
+			log.Error("Invalid request", sl.Err(err))
 
 			render.JSON(w, r, resp.ValidateError(validateErr))
 

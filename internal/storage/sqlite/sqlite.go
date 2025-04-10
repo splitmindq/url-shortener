@@ -27,6 +27,7 @@ func NewStorage(storagePath string) (*Storage, error) {
 			url TEXT NOT NULL
 		);
 	`)
+
 	if err != nil {
 		return nil, fmt.Errorf("не удалось подготовить оператор: %w", err)
 	}
