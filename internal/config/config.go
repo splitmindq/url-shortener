@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -12,6 +13,15 @@ type Config struct {
 	Env         string `yaml:"env" env-default:"local" `
 	StoragePath string `yaml:"storage_path" env-required:"true"`
 	HTTPServer  `yaml:"http_server"`
+	DB          DBConfig `yaml:"db"`
+}
+
+type DBConfig struct {
+	Host     string `yaml:"host" env-required:"true"`
+	Port     int    `yaml:"port" env-required:"true"`
+	Username string `yaml:"user" env:"USER" env-required:"true"`
+	Password string `yaml:"password" env:"DB_PASSWORD" env-required:"true"`
+	Name     string `yaml:"name" env-required:"true"`
 }
 
 type HTTPServer struct {
@@ -38,5 +48,12 @@ func MustLoad() *Config {
 	if err := cleanenv.ReadConfig(configPath, &config); err != nil {
 		log.Fatalf("failed to read config file: %v", err)
 	}
+
+	config.DB.Username = os.Getenv("DB_USER")
+	config.DB.Password = os.Getenv("DB_PASSWORD")
+	config.DB.Host = os.Getenv("DB_HOST")
+	config.DB.Port, _ = strconv.Atoi(os.Getenv("DB_PORT"))
+	config.DB.Name = os.Getenv("DB_NAME")
+
 	return &config
 }

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,8 +14,7 @@ import (
 	"url-shortener/internal/http-server/handlers/url/save"
 	"url-shortener/internal/http-server/middleware/logger"
 	"url-shortener/internal/lib/logger/handlers/slogpretty"
-	"url-shortener/internal/lib/logger/sl"
-	"url-shortener/internal/storage/sqlite"
+	"url-shortener/internal/storage/postgres"
 )
 
 const (
@@ -26,15 +27,27 @@ func main() {
 
 	cfg := config.MustLoad()
 
+	fmt.Println(cfg)
+
 	log := setupLogger(cfg.Env)
 
-	storage, err := sqlite.NewStorage(cfg.StoragePath)
+	storage, err := postgres.New(cfg)
 	if err != nil {
-		log.Error("failed to create storage", sl.Err(err))
-		os.Exit(1)
+		fmt.Printf("Error connecting to database: %v\n", err)
+		return
 	}
+	defer storage.Close()
 
 	router := chi.NewRouter()
+
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Для разработки можно разрешить все
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Максимальное время кеширования preflight запросов
+	}))
 
 	router.Use(middleware.RequestID)
 	router.Use(logger.New(log))
@@ -47,7 +60,7 @@ func main() {
 	log.Info("starting server", slog.String("address", cfg.Address))
 
 	srv := &http.Server{
-		Addr:         cfg.Address,
+		Addr:         "0.0.0.0:8080",
 		Handler:      router,
 		ReadTimeout:  cfg.Timeout,
 		WriteTimeout: cfg.Timeout,

@@ -4,3 +4,11 @@
     address: "localhost:8080"
     timeout: 2s
     idle_timeout: 60s
+
+
+  db:
+    host: ${DB_HOST}
+    port: 5432
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
+    name: ${DB_NAME}
