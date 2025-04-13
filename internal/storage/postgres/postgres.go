@@ -19,11 +19,11 @@ type Storage struct {
 func New(cfg *config.Config) (*Storage, error) {
 	connStr := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		cfg.DB.Username,
-		cfg.DB.Password,
-		cfg.DB.Host,
-		cfg.DB.Port,
-		cfg.DB.Name,
+		cfg.DBConfig.Username,
+		cfg.DBConfig.Password,
+		cfg.DBConfig.Host,
+		cfg.DBConfig.Port,
+		cfg.DBConfig.Name,
 	)
 
 	poolConfig, err := pgxpool.ParseConfig(connStr)

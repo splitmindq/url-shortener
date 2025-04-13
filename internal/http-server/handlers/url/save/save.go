@@ -72,7 +72,7 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 		id, err := urlSaver.SaveUrl(req.URL, alias)
 		if errors.Is(err, storage.ErrURLAlreadyExists) {
-			log.Info("Url already exists", slog.String("url", req.URL))
+			log.Error("Url already exists", slog.String("url", req.URL))
 
 			render.JSON(w, r, resp.Error("url already exists"))
 

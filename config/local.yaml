@@ -1,7 +1,7 @@
   env: "local" #dev, prod
   storage_path: "./storage/storage.db"
   http_server:
-    address: "localhost:8080"
+    address: "0.0.0.0:8080"
     timeout: 2s
     idle_timeout: 60s
 

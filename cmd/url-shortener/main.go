@@ -27,8 +27,6 @@ func main() {
 
 	cfg := config.MustLoad()
 
-	fmt.Println(cfg)
-
 	log := setupLogger(cfg.Env)
 
 	storage, err := postgres.New(cfg)
@@ -41,12 +39,12 @@ func main() {
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Для разработки можно разрешить все
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
-		MaxAge:           300, // Максимальное время кеширования preflight запросов
+		MaxAge:           300,
 	}))
 
 	router.Use(middleware.RequestID)
@@ -60,7 +58,7 @@ func main() {
 	log.Info("starting server", slog.String("address", cfg.Address))
 
 	srv := &http.Server{
-		Addr:         "0.0.0.0:8080",
+		Addr:         cfg.Address,
 		Handler:      router,
 		ReadTimeout:  cfg.Timeout,
 		WriteTimeout: cfg.Timeout,

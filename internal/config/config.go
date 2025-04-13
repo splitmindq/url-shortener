@@ -13,7 +13,7 @@ type Config struct {
 	Env         string `yaml:"env" env-default:"local" `
 	StoragePath string `yaml:"storage_path" env-required:"true"`
 	HTTPServer  `yaml:"http_server"`
-	DB          DBConfig `yaml:"db"`
+	DBConfig    `yaml:"db"`
 }
 
 type DBConfig struct {
@@ -49,11 +49,11 @@ func MustLoad() *Config {
 		log.Fatalf("failed to read config file: %v", err)
 	}
 
-	config.DB.Username = os.Getenv("DB_USER")
-	config.DB.Password = os.Getenv("DB_PASSWORD")
-	config.DB.Host = os.Getenv("DB_HOST")
-	config.DB.Port, _ = strconv.Atoi(os.Getenv("DB_PORT"))
-	config.DB.Name = os.Getenv("DB_NAME")
+	config.DBConfig.Username = os.Getenv("DB_USER")
+	config.DBConfig.Password = os.Getenv("DB_PASSWORD")
+	config.DBConfig.Host = os.Getenv("DB_HOST")
+	config.DBConfig.Port, _ = strconv.Atoi(os.Getenv("DB_PORT"))
+	config.DBConfig.Name = os.Getenv("DB_NAME")
 
 	return &config
 }
